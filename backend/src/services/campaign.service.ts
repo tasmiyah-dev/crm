@@ -1,0 +1,114 @@
+// @ts-ignore
+import { PrismaClient, Campaign, Sequence } from '@prisma/client';
+import { StepType, CampaignStatus } from '../enums';
+
+const prisma = new PrismaClient();
+
+interface CreateSequenceStepDTO {
+    order: number;
+    type: StepType;
+    subject?: string;
+    body?: string;
+    delayDays?: number;
+    delayHours?: number;
+}
+
+interface CreateCampaignDTO {
+    name: string;
+    dailyLimit?: number;
+    startTime?: string;
+    endTime?: string;
+    timezone?: string;
+    mailboxId?: string;
+}
+
+export class CampaignService {
+
+    /**
+     * Create a new campaign with optional initial settings
+     */
+    async createCampaign(data: CreateCampaignDTO): Promise<Campaign> {
+        return await prisma.campaign.create({
+            data: {
+                name: data.name,
+                dailyLimit: data.dailyLimit,
+                startTime: data.startTime,
+                endTime: data.endTime,
+                timezone: data.timezone,
+                mailboxId: data.mailboxId,
+                status: 'DRAFT'
+            }
+        });
+    }
+
+    /**
+     * Add a generic step (Email, Delay, etc.) to a campaign
+     */
+    async addSequenceStep(campaignId: string, stepData: CreateSequenceStepDTO): Promise<Sequence> {
+        return await prisma.sequence.create({
+            data: {
+                campaignId,
+                order: stepData.order,
+                type: stepData.type,
+                subject: stepData.subject,
+                body: stepData.body, // In real app, validate spintax here
+                delayDays: stepData.delayDays || 0,
+                delayHours: stepData.delayHours || 0
+            }
+        });
+    }
+
+    /**
+     * Link a Lead to a Campaign (Add to campaign)
+     * This initializes the "State Machine" for that lead in this campaign
+     */
+    async addLeadToCampaign(campaignId: string, leadId: string) {
+        // Check if already exists to avoid errors
+        const existing = await prisma.campaignLead.findUnique({
+            where: {
+                campaignId_leadId: {
+                    campaignId,
+                    leadId
+                }
+            }
+        });
+
+        if (existing) return existing;
+
+        return await prisma.campaignLead.create({
+            data: {
+                campaignId,
+                leadId,
+                status: 'NEW',
+                currentStep: 0,
+                nextActionAt: new Date() // Trigger immediately (or handled by scheduler)
+            }
+        });
+    }
+
+    async getCampaign(id: string) {
+        return await prisma.campaign.findUnique({
+            where: { id },
+            include: {
+                sequences: { orderBy: { order: 'asc' } },
+                _count: { select: { leads: true, events: true } }
+            }
+        });
+    }
+
+    async listCampaigns() {
+        return await prisma.campaign.findMany({
+            orderBy: { createdAt: 'desc' },
+            include: {
+                _count: { select: { leads: true } }
+            }
+        });
+    }
+
+    async updateStatus(id: string, status: CampaignStatus) {
+        return await prisma.campaign.update({
+            where: { id },
+            data: { status }
+        });
+    }
+}

@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Workspace {
+  id        String   @id @default(uuid())
+  name      String
+  
+  // Billing
+  stripeCustomerId String?
+  subscriptionStatus String @default("active") // active, trialing, past_due, canceled, unpaid
+  plan              String @default("FREE")    // FREE, PRO
+  currentPeriodEnd  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User[]
+  leads     Lead[]
+  campaigns Campaign[]
+  mailboxes Mailbox[]
+}
+
+model User {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  password    String
+  name        String?
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Lead {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  firstName String?
+  lastName  String?
+  company   String?
+  jobTitle  String?
+  website   String?
+  location  String?
+  timezone  String? 
+  metadata  String?
+  status    String   @default("NEW")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+
+  campaignLeads CampaignLead[]
+  events        Event[]
+}
+
+model Campaign {
+  id        String   @id @default(uuid())
+  name      String
+  status    String   @default("DRAFT")
+  dailyLimit Int?     
+  startTime  String?  
+  endTime    String?  
+  timezone   String?  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+
+  sequences Sequence[]
+  leads     CampaignLead[]
+  events    Event[]
+  mailboxId String?
+  mailbox   Mailbox? @relation(fields: [mailboxId], references: [id])
+}
+
+model Sequence {
+  id         String   @id @default(uuid())
+  campaignId String
+  title      String?
+  order      Int      
+  type       String   
+  subject    String?
+  body       String?  
+  delayDays  Int      @default(0)
+  delayHours Int      @default(0)
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  @@index([campaignId])
+}
+
+model CampaignLead {
+  id         String   @id @default(uuid())
+  campaignId String
+  leadId     String
+  status     String   @default("NEW")
+  currentStep  Int      @default(0) 
+  nextActionAt DateTime?            
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  lead       Lead     @relation(fields: [leadId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@unique([campaignId, leadId])
+  @@index([nextActionAt]) 
+}
+
+model Mailbox {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  name        String?  // Internal name
+  fromName    String?  // Display name in emails
+  status      String   @default("DISCONNECTED") // CONNECTED, ERROR
+  smtpHost    String
+  smtpPort    Int
+  smtpUser    String
+  smtpPass    String
+  imapHost    String?
+  imapPort    Int?
+  imapUser    String?
+  imapPass    String?
+  dailyLimit  Int      @default(50)
+  sentCount   Int      @default(0) 
+  lastReset   DateTime @default(now())
+  
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+
+  campaigns   Campaign[]
+}
+
+model Event {
+  id         String    @id @default(uuid())
+  type       String
+  campaignId String?
+  leadId     String?
+  sequenceId String?
+  metadata   String?     
+  createdAt  DateTime  @default(now())
+  campaign   Campaign? @relation(fields: [campaignId], references: [id])
+  lead       Lead?     @relation(fields: [leadId], references: [id])
+  @@index([type])
+  @@index([campaignId])
+}
