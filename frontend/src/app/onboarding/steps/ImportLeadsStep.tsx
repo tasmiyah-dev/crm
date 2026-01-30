@@ -35,7 +35,7 @@ export default function ImportLeadsStep({ onNext, defaultCompleted }: { onNext: 
             }).filter(Boolean);
 
             if (leads.length > 0) {
-                await api.post('/api/leads/bulk', { leads });
+                await api.post('/leads/bulk', { leads });
                 setSuccess(true);
             }
         } catch (err) {

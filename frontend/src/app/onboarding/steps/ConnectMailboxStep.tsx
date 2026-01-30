@@ -60,7 +60,7 @@ export default function ConnectMailboxStep({ onNext, defaultCompleted }: { onNex
         setError('');
 
         try {
-            await api.post('/api/mailboxes', {
+            await api.post('/mailboxes', {
                 email,
                 smtpUser: email,
                 smtpPass: password,

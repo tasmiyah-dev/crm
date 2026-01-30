@@ -25,8 +25,8 @@ export default function IntegrationsPage() {
         const fetchData = async () => {
             try {
                 const [campRes, workRes] = await Promise.all([
-                    api.get('/api/campaigns'),
-                    api.get('/api/workspace')
+                    api.get('/campaigns'),
+                    api.get('/workspace')
                 ]);
                 // API structure check: campaign list is array?
                 setCampaigns(campRes.data.campaigns || campRes.data);

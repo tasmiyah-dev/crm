@@ -26,7 +26,7 @@ export default function BillingPage() {
 
     const fetchWorkspace = async () => {
         try {
-            const res = await api.get('/api/workspace');
+            const res = await api.get('/workspace');
             setWorkspace(res.data);
         } catch (err) {
             console.error(err);
@@ -38,7 +38,7 @@ export default function BillingPage() {
     const handleUpgrade = async () => {
         setUpgrading(true);
         try {
-            const res = await api.post('/api/workspace/checkout');
+            const res = await api.post('/workspace/checkout');
             if (res.data.url) {
                 window.location.href = res.data.url;
             }
@@ -52,7 +52,7 @@ export default function BillingPage() {
     const handleDevUpgrade = async () => {
         if (!confirm('This is a dev-only tool. Upgrade for free?')) return;
         try {
-            await api.post('/api/workspace/dev-upgrade');
+            await api.post('/workspace/dev-upgrade');
             fetchWorkspace();
         } catch (err) {
             console.error(err);

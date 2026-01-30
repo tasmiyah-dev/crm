@@ -27,11 +27,11 @@ export default function CreateCampaignStep({ onNext, defaultCompleted }: { onNex
         setLoading(true);
         try {
             // Create Campaign
-            const res = await api.post('/api/campaigns', { name });
+            const res = await api.post('/campaigns', { name });
             const campaignId = res.data.id;
 
             // Add Step 1 (Email)
-            await api.post(`/api/campaigns/${campaignId}/sequences`, {
+            await api.post(`/campaigns/${campaignId}/sequences`, {
                 order: 1,
                 type: 'EMAIL',
                 subject,

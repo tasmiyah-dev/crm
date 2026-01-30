@@ -23,7 +23,7 @@ export default function OnboardingWizard() {
 
     const fetchStatus = async () => {
         try {
-            const res = await api.get('/api/onboarding');
+            const res = await api.get('/onboarding');
             setStatus(res.data);
 
             // Auto-advance logic based on what's done?

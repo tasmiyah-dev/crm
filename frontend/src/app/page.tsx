@@ -32,7 +32,7 @@ export default function DashboardPage() {
       try {
         const [statsRes, onboardingRes] = await Promise.all([
           api.get('/analytics/global'),
-          api.get('/api/onboarding')
+          api.get('/onboarding')
         ]);
         setStats(statsRes.data);
         setOnboarding(onboardingRes.data);

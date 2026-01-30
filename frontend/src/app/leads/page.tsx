@@ -86,7 +86,7 @@ export default function LeadsPage() {
     const handleBulkDelete = async () => {
         if (!confirm(`Delete ${selectedIds.length} leads?`)) return;
         try {
-            await api.post('/api/leads/bulk-delete', { ids: selectedIds });
+            await api.post('/leads/bulk-delete', { ids: selectedIds });
             fetchLeads(page);
             setSelectedIds([]);
         } catch (err) {
@@ -111,7 +111,7 @@ export default function LeadsPage() {
                 }
 
                 try {
-                    await api.post('/api/leads/bulk', { leads: parsedLeads });
+                    await api.post('/leads/bulk', { leads: parsedLeads });
                     alert(`Successfully imported ${parsedLeads.length} leads!`);
                     setShowImport(false);
                     setImportText('');
