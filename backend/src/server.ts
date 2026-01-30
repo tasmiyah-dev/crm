@@ -26,7 +26,7 @@ app.use(express.json());
 
 import { authenticate } from './middleware/auth.middleware';
 
-app.use('/auth', authRouter);
+app.use('/api/auth', authRouter);
 app.use('/api/leads', authenticate, leadRouter);
 app.use('/api/campaigns', authenticate, campaignRouter);
 app.use('/api/analytics', authenticate, analyticsRouter);

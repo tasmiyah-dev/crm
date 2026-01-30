@@ -13,9 +13,10 @@ export const Shell = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         if (!loading && !user && !isAuthPage) {
-            router.push('/login');
+            // Force hard redirect
+            window.location.href = '/login';
         }
-    }, [loading, user, isAuthPage, router]);
+    }, [loading, user, isAuthPage]);
 
     if (loading) return <div className="h-full flex items-center justify-center">Loading...</div>;
 
@@ -24,7 +25,7 @@ export const Shell = ({ children }: { children: React.ReactNode }) => {
     }
 
     if (!user) {
-        return null;
+        return <div className="h-full flex items-center justify-center">Redirecting to login...</div>;
     }
 
     return (
