@@ -26,5 +26,6 @@ This project focuses on building an agentic workflow using NotebookLLM.
 - **Wix Integration**: Completed.
 - **Stripe Integration**: Completed (Payments + Usage Limits).
 - **User Onboarding**: Completed. Dedicated Wizard (`/onboarding`) guide new users.
-- **Deployment**: Code pushed to GitHub (`tasmiyah-dev/crm`). Backend deployment initiated on Railway.
-- **Next Steps**: Verify Backend URL and Deploy Frontend (Vercel).
+- **Deployment**: **COMPLETED**. Live on Vercel (Frontend) and Render (Backend).
+- **Database**: Connected to Neon (PostgreSQL).
+yess
