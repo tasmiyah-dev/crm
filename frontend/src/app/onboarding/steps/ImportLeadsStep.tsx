@@ -51,7 +51,21 @@ export default function ImportLeadsStep({ onNext, defaultCompleted }: { onNext: 
             <div className="text-center">
                 <Users className="w-12 h-12 mx-auto text-gray-400 mb-2" />
                 <h3 className="text-lg font-medium">Add your first leads</h3>
-                <p className="text-sm text-gray-500">Paste your leads below (Email, Name)</p>
+                <p className="text-sm text-gray-500 mb-2">Paste your leads below (Email, Name)</p>
+                <button
+                    onClick={() => {
+                        const csvContent = "email,firstName\njohn@example.com,John Doe\njane@test.com,Jane";
+                        const blob = new Blob([csvContent], { type: 'text/csv' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'leads_sample.csv';
+                        a.click();
+                    }}
+                    className="text-xs text-blue-600 hover:underline"
+                >
+                    Download Sample CSV
+                </button>
             </div>
 
             <div>
