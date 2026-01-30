@@ -70,9 +70,7 @@ export class LeadService {
                 location: data.location,
                 timezone: data.timezone,
                 metadata: typeof data.metadata === 'string' ? data.metadata : JSON.stringify(data.metadata || {}),
-                status: 'NEW',
-                // @ts-ignore
-                source: data.source || 'MANUAL'
+                status: 'NEW'
             }
         });
     }
