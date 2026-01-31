@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { AuthRequest } from '../middleware/auth.middleware';
 import { CampaignService } from '../services/campaign.service';
 
 const campaignService = new CampaignService();
@@ -7,7 +8,11 @@ export class CampaignController {
 
     async create(req: Request, res: Response) {
         try {
-            const campaign = await campaignService.createCampaign(req.body);
+            const user = (req as AuthRequest).user;
+            if (!user || !user.workspaceId) return res.status(401).json({ error: 'Unauthorized' });
+
+            const data = { ...req.body, workspaceId: user.workspaceId };
+            const campaign = await campaignService.createCampaign(data);
             res.status(201).json(campaign);
         } catch (error) {
             res.status(500).json({ error: String(error) });
@@ -16,7 +21,10 @@ export class CampaignController {
 
     async get(req: Request, res: Response) {
         try {
-            const campaign = await campaignService.getCampaign(req.params.id as string);
+            const user = (req as AuthRequest).user;
+            if (!user || !user.workspaceId) return res.status(401).json({ error: 'Unauthorized' });
+
+            const campaign = await campaignService.getCampaign(req.params.id as string, user.workspaceId);
             if (!campaign) return res.status(404).json({ error: "Campaign not found" });
             res.json(campaign);
         } catch (error) {
@@ -26,7 +34,10 @@ export class CampaignController {
 
     async list(req: Request, res: Response) {
         try {
-            const campaigns = await campaignService.listCampaigns();
+            const user = (req as AuthRequest).user;
+            if (!user || !user.workspaceId) return res.status(401).json({ error: 'Unauthorized' });
+
+            const campaigns = await campaignService.listCampaigns(user.workspaceId);
             res.json(campaigns);
         } catch (error) {
             res.status(500).json({ error: String(error) });

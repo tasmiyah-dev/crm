@@ -83,8 +83,9 @@ export class MailboxService {
         return await prisma.mailbox.update({ where: { id }, data: { status } });
     }
 
-    async list(): Promise<Mailbox[]> {
+    async list(workspaceId: string): Promise<Mailbox[]> {
         return await prisma.mailbox.findMany({
+            where: { workspaceId },
             orderBy: { email: 'asc' }
         });
     }

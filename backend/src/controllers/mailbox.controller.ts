@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { AuthRequest } from '../middleware/auth.middleware';
 import { MailboxService } from '../services/mailbox.service';
 
 const mailboxService = new MailboxService();
@@ -7,9 +8,11 @@ export class MailboxController {
 
     async create(req: Request, res: Response) {
         try {
-            // Auto-test before creation? Or let user do it explicitly.
-            // For now, simple creation.
-            const mailbox = await mailboxService.create(req.body);
+            const user = (req as AuthRequest).user;
+            if (!user || !user.workspaceId) return res.status(401).json({ error: 'Unauthorized' });
+
+            const data = { ...req.body, workspaceId: user.workspaceId };
+            const mailbox = await mailboxService.create(data);
             res.status(201).json(mailbox);
         } catch (error) {
             res.status(500).json({ error: String(error) });
@@ -41,7 +44,10 @@ export class MailboxController {
 
     async list(req: Request, res: Response) {
         try {
-            const mailboxes = await mailboxService.list();
+            const user = (req as AuthRequest).user;
+            if (!user || !user.workspaceId) return res.status(401).json({ error: 'Unauthorized' });
+
+            const mailboxes = await mailboxService.list(user.workspaceId);
             res.json(mailboxes);
         } catch (error) {
             res.status(500).json({ error: String(error) });

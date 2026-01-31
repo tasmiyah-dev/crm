@@ -20,6 +20,7 @@ interface CreateCampaignDTO {
     endTime?: string;
     timezone?: string;
     mailboxId?: string;
+    workspaceId?: string;
 }
 
 export class CampaignService {
@@ -36,7 +37,8 @@ export class CampaignService {
                 endTime: data.endTime,
                 timezone: data.timezone,
                 mailboxId: data.mailboxId,
-                status: 'DRAFT'
+                status: 'DRAFT',
+                workspaceId: data.workspaceId
             }
         });
     }
@@ -86,9 +88,9 @@ export class CampaignService {
         });
     }
 
-    async getCampaign(id: string) {
-        return await prisma.campaign.findUnique({
-            where: { id },
+    async getCampaign(id: string, workspaceId: string) {
+        return await prisma.campaign.findFirst({
+            where: { id, workspaceId },
             include: {
                 sequences: { orderBy: { order: 'asc' } },
                 _count: { select: { leads: true, events: true } }
@@ -96,8 +98,9 @@ export class CampaignService {
         });
     }
 
-    async listCampaigns() {
+    async listCampaigns(workspaceId: string) {
         return await prisma.campaign.findMany({
+            where: { workspaceId },
             orderBy: { createdAt: 'desc' },
             include: {
                 _count: { select: { leads: true } }
