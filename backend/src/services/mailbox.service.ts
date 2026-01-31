@@ -20,7 +20,7 @@ export class MailboxService {
         }
 
         const createData = {
-            email: data.email,
+            email: data.email.toLowerCase(),
             name: data.name,
             fromName: data.fromName,
             status: 'DISCONNECTED', // Default
@@ -37,7 +37,7 @@ export class MailboxService {
         };
 
         // Check for existing mailbox (to handle previous orphans or duplicates)
-        const existing = await prisma.mailbox.findUnique({ where: { email: data.email } });
+        const existing = await prisma.mailbox.findUnique({ where: { email: createData.email } });
         if (existing) {
             if (!existing.workspaceId) {
                 // HEAL/ADOPT: Update the orphan with current workspace

@@ -69,8 +69,9 @@ export default function SettingsPage() {
             loadMailboxes();
             // Reset crucial fields
             setFormData({ ...formData, email: '', smtpUser: '', smtpPass: '', imapUser: '', imapPass: '' });
-        } catch (err) {
-            alert('Failed to save mailbox: ' + String(err));
+        } catch (err: any) {
+            const msg = err.response?.data?.error || err.message || String(err);
+            alert('Failed to save mailbox: ' + msg);
         }
     };
 
