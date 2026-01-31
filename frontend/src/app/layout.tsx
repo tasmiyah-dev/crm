@@ -7,8 +7,8 @@ import { Shell } from '@/components/Shell';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Cold Email CRM',
-  description: 'Agentic Outreach Platform',
+  title: 'Nexusware',
+  description: 'Power your outreach with AI',
 };
 
 export default function RootLayout({
@@ -20,9 +20,7 @@ export default function RootLayout({
     <html lang="en" className="h-full bg-gray-100">
       <body className={`${inter.className} h-full`}>
         <AuthProvider>
-          <div className="bg-red-500 text-white text-center font-bold p-1 z-[9999] relative">
-            DEBUG PROBE: v4.0 - IF YOU SEE THIS, DEPLOYMENT WORKED
-          </div>
+          {/* Debug banner removed */}
           <Shell>
             {children}
           </Shell>

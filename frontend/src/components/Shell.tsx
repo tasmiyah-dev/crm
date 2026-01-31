@@ -10,18 +10,19 @@ export const Shell = ({ children }: { children: React.ReactNode }) => {
     const router = useRouter();
     const { user, loading } = useAuth();
     console.log('Shell Debug:', { pathname, loading, user: user?.email });
-    const isAuthPage = pathname === '/login' || pathname === '/register';
+    // Root '/' is the Landing Page (Public)
+    const isPublicPage = pathname === '/' || pathname === '/login' || pathname === '/register';
 
     useEffect(() => {
-        if (!loading && !user && !isAuthPage) {
+        if (!loading && !user && !isPublicPage) {
             // Force hard redirect
             window.location.href = '/login';
         }
-    }, [loading, user, isAuthPage]);
+    }, [loading, user, isPublicPage]);
 
     if (loading) return <div className="h-full flex items-center justify-center">Loading...</div>;
 
-    if (isAuthPage) {
+    if (isPublicPage) {
         return <div className="h-full bg-white">{children}</div>;
     }
 

@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Set axios default
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         setUser(userData);
-        router.push('/');
+        router.push('/dashboard');
     };
 
     return (
