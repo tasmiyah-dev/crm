@@ -9,6 +9,7 @@ export const Shell = ({ children }: { children: React.ReactNode }) => {
     const pathname = usePathname();
     const router = useRouter();
     const { user, loading } = useAuth();
+    console.log('Shell Debug:', { pathname, loading, user: user?.email });
     const isAuthPage = pathname === '/login' || pathname === '/register';
 
     useEffect(() => {

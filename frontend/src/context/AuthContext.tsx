@@ -49,8 +49,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 .then(res => {
                     setUser(res.data.user);
                 })
-                .catch(() => {
-                    // Invalid token
+                .catch((err) => {
+                    console.error('Auth Check Failed:', err);
                     logout();
                 })
                 .finally(() => setLoading(false));
