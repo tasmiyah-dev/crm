@@ -35,17 +35,13 @@ export default function BillingPage() {
         }
     };
 
-    const handleUpgrade = async () => {
-        setUpgrading(true);
-        try {
-            const res = await api.post('/workspace/checkout');
-            if (res.data.url) {
-                window.location.href = res.data.url;
-            }
-        } catch (err) {
-            console.error(err);
-            alert('Failed to start checkout');
-            setUpgrading(false);
+    const handleUpgrade = () => {
+        const wiseLink = process.env.NEXT_PUBLIC_WISE_PAYMENT_LINK;
+        if (wiseLink) {
+            window.open(wiseLink, '_blank');
+            alert('After completing payment, please contact the admin to activate your Pro plan.');
+        } else {
+            alert('Payment link not configured. Please contact admin.');
         }
     };
 
@@ -67,28 +63,7 @@ export default function BillingPage() {
         <div className="max-w-4xl mx-auto">
             <h1 className="text-3xl font-bold text-gray-900 mb-8">Billing & Plans</h1>
 
-            {success && (
-                <div className="mb-8 bg-green-50 border-l-4 border-green-400 p-4">
-                    <div className="flex">
-                        <div className="flex-shrink-0">
-                            <Check className="h-5 w-5 text-green-400" aria-hidden="true" />
-                        </div>
-                        <div className="ml-3">
-                            <p className="text-sm text-green-700">
-                                Upgrade successful! You now have access to Pro features.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {canceled && (
-                <div className="mb-8 bg-yellow-50 border-l-4 border-yellow-400 p-4">
-                    <p className="text-sm text-yellow-700">
-                        Checkout canceled. You were not charged.
-                    </p>
-                </div>
-            )}
+            {/* Success/Canceled alerts removed since we are doing manual wise link */}
 
             <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
                 <div className="px-4 py-5 sm:px-6">
@@ -157,8 +132,8 @@ export default function BillingPage() {
                             </li>
                         </ul>
                         <div className="pt-6 sm:pt-0 flex flex-col gap-2">
-                            <Button onClick={handleUpgrade} disabled={upgrading} className="w-full flex items-center justify-center px-5 py-3 text-base font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700">
-                                {upgrading ? 'Processing...' : 'Upgrade with Stripe'}
+                            <Button onClick={handleUpgrade} className="w-full flex items-center justify-center px-5 py-3 text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                                Pay with Wise
                                 <Zap className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
                             </Button>
 
