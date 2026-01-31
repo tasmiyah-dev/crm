@@ -27,6 +27,7 @@ export default function NewLeadPage() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
+            console.log('Submitting lead to:', api.defaults.baseURL + '/leads');
             await api.post('/leads', formData);
             router.push('/leads');
         } catch (err) {

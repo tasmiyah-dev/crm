@@ -57,7 +57,7 @@ export default function LeadsPage() {
             if (search) params.append('search', search);
             if (statusFilter) params.append('status', statusFilter);
 
-            const res = await api.get(`/api/leads?${params.toString()}`);
+            const res = await api.get(`/leads?${params.toString()}`);
             setLeads(res.data.data);
             setTotalPages(res.data.totalPages);
             setPage(res.data.page);
