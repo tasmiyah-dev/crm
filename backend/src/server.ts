@@ -14,6 +14,7 @@ import authRouter from './routes/auth.routes';
 import { OnboardingController } from './controllers/onboarding.controller';
 import workspaceRouter from './routes/workspace.routes';
 import widgetRouter from './routes/widget.routes';
+import adminRouter from './routes/admin.routes';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use('/tracking', trackingRouter);
 app.use('/webhooks', webhookRouter);
 app.use('/api/mailboxes', authenticate, mailboxRouter);
 app.use('/api/widget', widgetRouter);
+app.use('/api/admin', adminRouter);
 
 // Health Check
 app.get('/health', async (req, res) => {
