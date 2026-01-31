@@ -1,31 +1,54 @@
-# NotebookLLM Agentic Workflow
+# Nexusware - AI Cold Email & CRM Platform
 
 ## Project Overview
-This project focuses on building an agentic workflow using NotebookLLM.
+Nexusware is a scalable, "Instantly-like" cold email outreach platform designed for high-volume sending, automated warmup, and detailed analytics. It combines CRM capabilities with a robust email infrastructure.
 
-## Architecture & Core Concepts
-- **NotebookLLM Integration**: Using Google's NotebookLLM for RAG and information synthesis.
-- **MCP (Model Context Protocol)**: Connecting LLMs to external data and tools.
-- **Agentic Workflow**: Automating tasks through a series of steps or agents.
+## Core Features
+### 1. Outreach Engine
+-   **Campaigns**: Multi-step email sequences with delays (Days/Hours).
+-   **Spintax Support**: `{{Hi|Hello}}` for content variation.
+-   **Personalization**: Merge tags `{{firstName}}`, `{{company}}` supported dynamically.
+-   **Status Tracking**: NEW -> CONTACTED -> REPLIED (Auto-detected).
+
+### 2. Infrastructure (High Scale)
+-   **Queue System**: Powered by **BullMQ** & **Redis** (Upstash) to handle thousands of concurrent jobs.
+-   **Worker Process**: Dedicated background worker for email dispatching.
+-   **Rate Limiting**: Global and per-mailbox limits to protect domain reputation.
+-   **Resilience**: Automatic retries and error logging.
+
+### 3. Smart Warmup System
+-   **Peer-to-Peer Network**: Mailboxes automatically exchange emails with other workspace mailboxes.
+-   **Ramp-Up Algorithm**: Gradual increase in volume (Start 5/day -> Max 50/day).
+-   **Reputation Guard**: Helps new domains achieve high deliverability.
+
+### 4. Analytics & Tracking
+-   **Pixel Tracking**: Invisible 1x1 pixel for Open Rate monitoring.
+-   **Link Wrapping**: Automatic rewriting of links to track Click Rate.
+-   **Dashboard**: Real-time visualization of Sent, Open, Click, and Reply metrics.
 
 ## Tech Stack
-- **OS**: Windows
-- **Language**: Python / Node.js (To be determined based on specific needs)
-- **Tools**: NotebookLLM, MCP Servers
+-   **Frontend**: Next.js 14, Tailwind CSS, Lucide Icons.
+-   **Backend**: Node.js, Express.
+-   **Database**: PostgreSQL (Neon Tech), Prisma ORM.
+-   **Queue**: Redis (Upstash) + BullMQ.
+-   **Hosting**: Vercel (Frontend), Render (Backend).
 
-## Directory Structure
-- `/notebookllm`: Core project files
-- `.agent/workflows`: Automations and workflows
+## Deployment Guide
+### Environment Variables
+Ensure the following are set in your `.env`:
+-   `DATABASE_URL`: PostgreSQL connection string.
+-   `REDIS_URL`: `rediss://...` (Upstash).
+-   `API_URL`: Backend URL (for tracking pixels).
+-   `NEXT_PUBLIC_API_URL`: Backend URL (for frontend).
 
-## Development Guidelines
-1. **Documentation First**: Keep `GEMINI.md` updated with the latest context.
-2. **Artifact Management**: Use artifacts for plans, tasks, and summaries.
-3. **Atomic Changes**: Make small, verifiable changes.
+### Running Production
+1.  **Frontend**: `npm run build && npm start`
+2.  **Backend**: `npm run build && npm start`
+    -   *Note*: `npm start` launches both the API Server and the Background Worker in the same process group (via `server.ts` import).
 
-## Current Context
-- **Wix Integration**: Completed.
-- **Stripe Integration**: Completed (Payments + Usage Limits).
-- **User Onboarding**: Completed. Dedicated Wizard (`/onboarding`) guide new users.
-- **Deployment**: **COMPLETED**. Live on Vercel (Frontend) and Render (Backend).
-- **Database**: Connected to Neon (PostgreSQL).
-yess
+## Current Status
+-   **Phase 1 (Campaigns)**: ✅ Complete
+-   **Phase 2 (Queue Infra)**: ✅ Complete
+-   **Phase 3 (Warmup)**: ✅ Complete
+-   **Phase 4 (Analytics)**: ✅ Complete
+-   **Production Deployment**: Ready.

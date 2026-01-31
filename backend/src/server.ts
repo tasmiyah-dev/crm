@@ -1,4 +1,5 @@
 import express from 'express';
+import './workers/email.worker'; // Start the Queue Worker
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';

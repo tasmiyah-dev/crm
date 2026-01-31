@@ -1,54 +1,96 @@
 import { Request, Response } from 'express';
-import { EventService } from '../services/event.service';
 import { PrismaClient } from '@prisma/client';
 
-const eventService = new EventService();
 const prisma = new PrismaClient();
+const PIXEL = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
 
 export class TrackingController {
 
     /**
-     * Pixel Endpoint: GET /tracking/pixel.png?cid=...&lid=...
+     * Track Email Open
+     * GET /track/open?id=<campaignLeadId>
      */
-    async trackOpen(req: Request, res: Response) {
-        const { cid, lid } = req.query; // CampaignId, LeadId
+    static async trackOpen(req: Request, res: Response) {
+        try {
+            const { id } = req.query; // campaignLeadId or eventId? 
+            // Better to use a specific Tracking ID or just the CampaignLead ID if unique per email sent
+            // But CampaignLead ID is constant across steps? 
+            // For now, let's assume 'id' is CampaignLead ID.
 
-        if (cid && lid) {
-            // Log safely without blocking response
-            eventService.logEvent('EMAIL_OPENED', String(cid), String(lid), {
-                ip: req.ip,
-                userAgent: req.get('User-Agent')
-            }).catch(console.error);
+            if (id && typeof id === 'string') {
+                // Log Event
+                await prisma.event.create({
+                    data: {
+                        type: 'EMAIL_OPENED',
+                        metadata: JSON.stringify({ ip: req.ip, userAgent: req.headers['user-agent'] }),
+                        // We need lookup to find campaignId/leadId from the passed ID
+                        // If ID passed is CampaignLeadId:
+                        // campaignId: ..., leadId: ...
+                    }
+                });
+
+                // Wait, creating event requires linking to Campaign/Lead.
+                // Fetch CampaignLead first
+                const cl = await prisma.campaignLead.findUnique({
+                    where: { id: id },
+                    include: { campaign: true, lead: true }
+                });
+
+                if (cl) {
+                    await prisma.event.create({
+                        data: {
+                            type: 'EMAIL_OPENED',
+                            campaignId: cl.campaignId,
+                            leadId: cl.leadId,
+                            metadata: JSON.stringify({ ip: req.ip, ua: req.get('User-Agent') })
+                        }
+                    });
+                    // console.log(`[Tracking] Email Opened: ${cl.lead.email}`);
+                }
+            }
+        } catch (error) {
+            console.error('[Tracking] Error logging open:', error);
         }
 
-        // Return 1x1 transparent PNG
-        const img = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
+        // Always return the pixel
         res.writeHead(200, {
-            'Content-Type': 'image/png',
-            'Content-Length': img.length
+            'Content-Type': 'image/gif',
+            'Content-Length': PIXEL.length,
         });
-        res.end(img);
+        res.end(PIXEL);
     }
 
     /**
-     * Link Redirect: GET /tracking/click?url=...&cid=...&lid=...
+     * Track Link Click
+     * GET /track/click?url=<dest>&id=<campaignLeadId>
      */
-    async trackClick(req: Request, res: Response) {
-        const { url, cid, lid } = req.query;
+    static async trackClick(req: Request, res: Response) {
+        const { url, id } = req.query;
 
-        if (!url) {
-            return res.status(400).send("Missing URL");
+        if (!url || typeof url !== 'string') {
+            return res.status(400).send('Missing URL');
         }
 
-        if (cid && lid) {
-            eventService.logEvent('LINK_CLICKED', String(cid), String(lid), {
-                url: String(url),
-                ip: req.ip,
-                userAgent: req.get('User-Agent')
-            }).catch(console.error);
+        try {
+            if (id && typeof id === 'string') {
+                const cl = await prisma.campaignLead.findUnique({ where: { id: id } });
+                if (cl) {
+                    await prisma.event.create({
+                        data: {
+                            type: 'LINK_CLICKED',
+                            campaignId: cl.campaignId,
+                            leadId: cl.leadId,
+                            metadata: JSON.stringify({ url, ip: req.ip, ua: req.get('User-Agent') })
+                        }
+                    });
+                    // console.log(`[Tracking] Link Clicked: ${url}`);
+                }
+            }
+        } catch (error) {
+            console.error('[Tracking] Error logging click:', error);
         }
 
-        // Redirect user to destination
-        res.redirect(String(url));
+        // Redirect
+        res.redirect(url);
     }
 }

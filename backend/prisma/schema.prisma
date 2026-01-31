@@ -129,6 +129,9 @@ model Mailbox {
   workspaceId String?
   workspace   Workspace? @relation(fields: [workspaceId], references: [id])
 
+  warmupEnabled   Boolean   @default(false)
+  warmupStartedAt DateTime?
+  
   campaigns   Campaign[]
 }
 
